@@ -53,28 +53,23 @@ public class GameController {
     public void handlePlayerInput(String key) {
         try {
             Ship ship = model.getShip();
-            if (ship == null || model.isGameOver()) return;
+            if (ship == null) return;
 
             switch (key.toUpperCase()) {
                 case "W" -> {
                     ship.move(Direction.UP);
-                    model.getLogger().log("Ship moved UP");
                 }
                 case "A" -> {
                     ship.move(Direction.LEFT);
-                    model.getLogger().log("Ship moved LEFT");
                 }
                 case "S" -> {
                     ship.move(Direction.DOWN);
-                    model.getLogger().log("Ship moved DOWN");
                 }
                 case "D" -> {
                     ship.move(Direction.RIGHT);
-                    model.getLogger().log("Ship moved RIGHT");
                 }
                 case "F" -> {
                     model.fireBullet();
-                    model.getLogger().log("Bullet fired");
                 }
                 case "P" -> pauseGame();
             }
@@ -87,9 +82,9 @@ public class GameController {
      * Logs game pause.
      */
     public void pauseGame() {
-        model.getLogger().log("Game paused");
+        ui.log("Game paused");
     }
-
+    
     /**
      * Starts the main game loop.
      *
@@ -111,7 +106,7 @@ public class GameController {
         // Uncomment in stage 2
         ui.onKey(this::handlePlayerInput); // Pass Callback to UI
     }
-    
+
     /**
      * Returns the current game model.
      *
