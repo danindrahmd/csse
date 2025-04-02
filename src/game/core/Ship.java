@@ -24,11 +24,7 @@ public class Ship extends Controllable {
             case RIGHT -> { if (x == GameModel.GAME_WIDTH - 1) throw new BoundaryExceededException("Right"); x++; }
         }
     }
-
-    @Override
-    public void fireBullet() {
-        // Dibiarkan kosong karena GameModel yang menambahkan peluru
-    }
+    
 
     @Override
     public void tick(int tick) {
