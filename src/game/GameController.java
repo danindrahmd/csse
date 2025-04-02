@@ -48,13 +48,6 @@ public class GameController {
     }
 
     /**
-     * Handles rendering the current game state.
-     */
-    private void renderGame() {
-        ui.render(model.getSpaceObjects());
-    }
-
-    /**
      * Handles player key input.
      */
     public void handlePlayerInput(String key) {
@@ -117,6 +110,22 @@ public class GameController {
         ui.onStep(this::onTick);
         // Uncomment in stage 2
         ui.onKey(this::handlePlayerInput); // Pass Callback to UI
+    }
+    
+    /**
+     * Returns the current game model.
+     *
+     * @return the model
+     */
+    public GameModel getModel() {
+        return model;
+    }
+
+    /**
+     * Renders the current state of the game.
+     */
+    public void renderGame() {
+        ui.render(model.getSpaceObjects());
     }
 
     /**
