@@ -43,8 +43,6 @@ public class GameModel {
     }
 
     /**
-     * Returns the current logger instance.
-     *
      * @return logger instance
      */
     public Logger getLogger() {
@@ -52,8 +50,6 @@ public class GameModel {
     }
 
     /**
-     * Returns the player's ship.
-     *
      * @return current player ship
      */
     public Ship getShip() {
@@ -61,8 +57,26 @@ public class GameModel {
     }
 
     /**
-     * Updates game state based on the current tick.
-     *
+     * Adds a space object to the model.
+     * @param object space object to add
+     */
+    public void addObject(SpaceObject object) {
+        if (object instanceof Ship s) {
+            ship = s;
+        }
+        spaceObjects.add(object);
+        logger.log("Added object at (" + object.getX() + ", " + object.getY() + ")");
+    }
+
+    /**
+     * @return list of current space objects
+     */
+    public List<SpaceObject> getSpaceObjects() {
+        return new ArrayList<>(spaceObjects);
+    }
+
+    /**
+     * Updates game state.
      * @param tick current tick number
      */
     public void updateGame(int tick) {
@@ -86,15 +100,13 @@ public class GameModel {
     }
 
     /**
-     * Handles object collisions such as bullets, power-ups, and enemies.
+     * Checks for object collisions.
      */
     public void checkCollisions() {
         List<SpaceObject> toRemove = new ArrayList<>();
         for (SpaceObject obj1 : spaceObjects) {
             for (SpaceObject obj2 : spaceObjects) {
-                if (obj1 == obj2) {
-                    continue;
-                }
+                if (obj1 == obj2) continue;
                 if (obj1.getX() == obj2.getX() && obj1.getY() == obj2.getY()) {
                     boolean bulletEnemy = (obj1 instanceof Bullet && obj2 instanceof Enemy)
                             || (obj1 instanceof Enemy && obj2 instanceof Bullet);
@@ -104,7 +116,6 @@ public class GameModel {
                         score += 10;
                         logger.log("Enemy destroyed!");
                     }
-
                     boolean powerUpShip = (obj1 instanceof PowerUp && obj2 == ship)
                             || (obj2 instanceof PowerUp && obj1 == ship);
                     if (powerUpShip) {
@@ -113,16 +124,12 @@ public class GameModel {
                         toRemove.add(powerUp);
                         logger.log("Power-up applied!");
                     }
-
-                    if ((obj1 instanceof Asteroid && obj2 == ship)
-                            || (obj2 instanceof Asteroid && obj1 == ship)) {
+                    if ((obj1 instanceof Asteroid && obj2 == ship) || (obj2 instanceof Asteroid && obj1 == ship)) {
                         ship.takeDamage(ASTEROID_DAMAGE);
                         logger.log("Asteroid hit the ship!");
                         toRemove.add(obj1 instanceof Asteroid ? obj1 : obj2);
                     }
-
-                    if ((obj1 instanceof Enemy && obj2 == ship)
-                            || (obj2 instanceof Enemy && obj1 == ship)) {
+                    if ((obj1 instanceof Enemy && obj2 == ship) || (obj2 instanceof Enemy && obj1 == ship)) {
                         ship.takeDamage(ENEMY_DAMAGE);
                         logger.log("Enemy hit the ship!");
                         toRemove.add(obj1 instanceof Enemy ? obj1 : obj2);
@@ -134,17 +141,59 @@ public class GameModel {
     }
 
     /**
-     * Returns whether the game is over.
-     *
-     * @return true if game is over, false otherwise
+     * Spawns new objects randomly.
+     */
+    public void spawnObjects() {
+        if (gameOver) {
+            return;
+        }
+        if (random.nextInt(100) < spawnRate) {
+            int x = random.nextInt(GAME_WIDTH);
+            double chance = random.nextDouble();
+            if (chance < 0.25) {
+                if (chance < 0.125) {
+                    addObject(new HealthPowerUp(x, 0));
+                } else {
+                    addObject(new ShieldPowerUp(x, 0));
+                }
+            } else if (chance < 0.75) {
+                addObject(new Enemy(x, 0));
+            } else {
+                addObject(new Asteroid(x, 0));
+            }
+        }
+    }
+
+    /**
+     * Advances level if score threshold is reached.
+     */
+    public void levelUp() {
+        if (score >= SCORE_THRESHOLD * level) {
+            level++;
+            spawnRate = Math.min(100, spawnRate + SPAWN_RATE_INCREASE);
+            logger.log("Level Up! Now at level " + level);
+        }
+    }
+
+    /**
+     * Fires a bullet from the ship.
+     */
+    public void fireBullet() {
+        if (ship != null) {
+            Bullet b = new Bullet(ship.getX(), ship.getY() - 1);
+            addObject(b);
+            logger.log("Bullet fired!");
+        }
+    }
+
+    /**
+     * @return whether the game is over
      */
     public boolean isGameOver() {
         return gameOver;
     }
 
     /**
-     * Returns the current game level.
-     *
      * @return current level
      */
     public int getLevel() {
