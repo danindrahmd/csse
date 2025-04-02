@@ -43,13 +43,6 @@ public class GameModel {
     }
 
     /**
-     * @return logger instance
-     */
-    public Logger getLogger() {
-        return logger;
-    }
-
-    /**
      * @return current player ship
      */
     public Ship getShip() {
@@ -185,14 +178,7 @@ public class GameModel {
             logger.log("Bullet fired!");
         }
     }
-
-    /**
-     * @return whether the game is over
-     */
-    public boolean isGameOver() {
-        return gameOver;
-    }
-
+    
     /**
      * @return current level
      */
