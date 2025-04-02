@@ -1,32 +1,17 @@
 package game.core;
 
-/**
- * Abstract class representing a power-up in the game.
- */
 public abstract class PowerUp extends ObjectWithPosition {
+    protected PowerUpEffect effect;
 
-    /**
-     * Constructs a power-up at the specified position.
-     *
-     * @param x the x coordinate
-     * @param y the y coordinate
-     */
-    public PowerUp(int x, int y) {
+    public PowerUp(int x, int y, PowerUpEffect effect) {
         super(x, y);
+        this.effect = effect;
     }
 
-    /**
-     * Applies the power-up effect to the ship.
-     *
-     * @param ship the ship to apply the effect to
-     */
-    public abstract void applyEffect(Ship ship);
+    public void applyEffect(Ship ship) {
+        effect.applyEffect(ship);
+    }
 
-    /**
-     * Moves the power-up down the screen each tick.
-     *
-     * @param tick the current game tick
-     */
     @Override
     public void tick(int tick) {
         y++;
