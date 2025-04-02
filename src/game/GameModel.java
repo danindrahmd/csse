@@ -15,14 +15,15 @@ import java.util.Random;
 public class GameModel {
     public static final int GAME_HEIGHT = 20;
     public static final int GAME_WIDTH = 10;
-    public static final int START_SPAWN_RATE = 2; // spawn rate (percentage chance per tick)
-    public static final int SPAWN_RATE_INCREASE = 5; // Increase spawn rate by 5% per level
-    public static final int START_LEVEL = 1; // Starting level value
-    public static final int SCORE_THRESHOLD = 100; // Score threshold for leveling
-    public static final int ASTEROID_DAMAGE = 10; // The amount of damage an asteroid deals
-    public static final int ENEMY_DAMAGE = 20; // The amount of damage an enemy deals
-    public static final double ENEMY_SPAWN_RATE = 0.5; // Percentage of asteroid spawn chance
-    public static final double POWER_UP_SPAWN_RATE = 0.25; // Percentage of asteroid spawn chance
+    public static final int START_SPAWN_RATE = 2;
+    public static final int SPAWN_RATE_INCREASE = 5;
+    public static final int START_LEVEL = 1;
+    public static final int SCORE_THRESHOLD = 100;
+    public static final int ASTEROID_DAMAGE = 10;
+    public static final int ENEMY_DAMAGE = 20;
+    public static final double ENEMY_SPAWN_RATE = 0.5;
+    public static final double POWER_UP_SPAWN_RATE = 0.25;
+
     private final Random random = new Random();
     private final List<SpaceObject> spaceObjects;
     private final Logger logger;
@@ -32,35 +33,33 @@ public class GameModel {
     private Ship ship;
     private boolean gameOver = false;
 
-
-
     /**
-     * Models a game, storing and modifying data relevant to the game.
-     * Logger argument should be a method reference to a .log method such as the UI.log method.
-     * Example: Model gameModel = new GameModel(ui::log)
-     * - Instantiates an empty list for storing all SpaceObjects the model needs to track.
-     * - Instantiates the game level with the starting level value.
-     * - Instantiates the game spawn rate with the starting spawn rate.
-     * - Instantiates a new ship.
-     * - Stores reference to the given logger.
-     *
-     * @param logger a functional interface for passing information between classes.
+     * Constructs the game model.
+     * @param logger logger instance to output game events
      */
     public GameModel(Logger logger) {
         this.spaceObjects = new ArrayList<>();
         this.logger = logger;
-        this.level = START_LEVEL;
-        this.spawnRate = START_SPAWN_RATE;
     }
 
+    /**
+     * @return logger instance
+     */
     public Logger getLogger() {
         return logger;
     }
 
+    /**
+     * @return current player ship
+     */
     public Ship getShip() {
         return ship;
     }
 
+    /**
+     * Adds a space object to the model.
+     * @param object space object to add
+     */
     public void addObject(SpaceObject object) {
         if (object instanceof Ship s) {
             ship = s;
@@ -69,12 +68,21 @@ public class GameModel {
         logger.log("Added object at (" + object.getX() + ", " + object.getY() + ")");
     }
 
+    /**
+     * @return list of current space objects
+     */
     public List<SpaceObject> getSpaceObjects() {
         return new ArrayList<>(spaceObjects);
     }
 
+    /**
+     * Updates game state.
+     * @param tick current tick number
+     */
     public void updateGame(int tick) {
-        if (gameOver) return;
+        if (gameOver || ship == null) {
+            return;
+        }
 
         List<SpaceObject> toRemove = new ArrayList<>();
         for (SpaceObject obj : spaceObjects) {
@@ -91,6 +99,9 @@ public class GameModel {
         }
     }
 
+    /**
+     * Checks for object collisions.
+     */
     public void checkCollisions() {
         List<SpaceObject> toRemove = new ArrayList<>();
         for (SpaceObject obj1 : spaceObjects) {
@@ -108,7 +119,7 @@ public class GameModel {
                     boolean powerUpShip = (obj1 instanceof PowerUp && obj2 == ship)
                             || (obj2 instanceof PowerUp && obj1 == ship);
                     if (powerUpShip) {
-                        PowerUp powerUp = (PowerUp)(obj1 instanceof PowerUp ? obj1 : obj2);
+                        PowerUp powerUp = (PowerUp) (obj1 instanceof PowerUp ? obj1 : obj2);
                         powerUp.applyEffect(ship);
                         toRemove.add(powerUp);
                         logger.log("Power-up applied!");
@@ -129,7 +140,13 @@ public class GameModel {
         spaceObjects.removeAll(toRemove);
     }
 
+    /**
+     * Spawns new objects randomly.
+     */
     public void spawnObjects() {
+        if (gameOver) {
+            return;
+        }
         if (random.nextInt(100) < spawnRate) {
             int x = random.nextInt(GAME_WIDTH);
             double chance = random.nextDouble();
@@ -147,6 +164,9 @@ public class GameModel {
         }
     }
 
+    /**
+     * Advances level if score threshold is reached.
+     */
     public void levelUp() {
         if (score >= SCORE_THRESHOLD * level) {
             level++;
@@ -155,15 +175,29 @@ public class GameModel {
         }
     }
 
+    /**
+     * Fires a bullet from the ship.
+     */
     public void fireBullet() {
         if (ship != null) {
             Bullet b = new Bullet(ship.getX(), ship.getY() - 1);
             addObject(b);
+            logger.log("Bullet fired!");
         }
     }
 
+    /**
+     * @return whether the game is over
+     */
     public boolean isGameOver() {
         return gameOver;
+    }
+
+    /**
+     * @return current level
+     */
+    public int getLevel() {
+        return level;
     }
 
     /**
